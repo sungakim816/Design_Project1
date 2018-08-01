@@ -1,0 +1,4 @@
+Adafruit_PCA9685
+SimpleCV
+spidev
+smbus
