@@ -2,11 +2,11 @@ from SimpleCV import Camera, Color, Display, DrawingLayer
 import Adafruit_PCA9685
 import spidev
 import RPi.GPIO as GPIO
-from Tools.RPi_I2C_driver import lcd as LCD
+from Tools.RPi_I2C_driver import lcd as LiquidCrystalDisplay
 from Tools.max6675 import MAX6675
 import time
 
-lcd = LCD()
+lcd = LiquidCrystalDisplay
 
 cs_pin = 24
 clock_pin = 23
@@ -16,13 +16,13 @@ tc = 0.0
 thermocouple = MAX6675(cs_pin, clock_pin, data_pin, unit)
 
 while True:
-	try:
-		cam = Camera(0)
+    try:
+        cam = Camera(0)
         img = cam.getImage().flipHorizontal()
-	except:
-		continue
-	else:
-		break
+    except:
+        continue
+    else:
+        break
 
 PULneg = 11
 DIRpos = 13
@@ -60,11 +60,11 @@ def move_step1():
             counter = counter + 2
         else:
             counter = counter - 2
-	for step in range(0, 134, 1):
-		GPIO.output(PULneg, True)
-		time.sleep(0.00035)
-		GPIO.output(PULneg, False)
-		time.sleep(0.00035)
+        for step in range(0, 134, 1):
+            GPIO.output(PULneg, True)
+            time.sleep(0.00035)
+            GPIO.output(PULneg, False)
+            time.sleep(0.00035)
 
 
 def move_right():
@@ -100,7 +100,7 @@ GPIO.output(enblPin, True)
 ########################################################################################################################
 
 # CV Initialization
-winsize = (640,480)
+winsize = (640, 480)
 display = Display(winsize)
 normaldisplay = True
 
@@ -134,9 +134,9 @@ scope_layer.line((center[0]+50, center[1]), (winsize[0], center[1]), Color.BLACK
 
 
 def temp_reading():
-	temp = thermocouple.get()
-	lcd.lcd_display_string("Temperature: ", 1)
-	lcd.lcd_display_string(str(temp), 2)
+    temp = thermocouple.get()
+    lcd.lcd_display_string("Temperature: ", 1)
+    lcd.lcd_display_string(str(temp), 2)
 
 
 try:
@@ -186,17 +186,16 @@ try:
                 time.sleep(0.010)
                 if i < 125:
                     i = 125
-            elif circles[-1].y > 240: # to left?  
-
-		i = i + 1
-		pwm.set_pwm(0, 0, i)
-		time.sleep(0.010)
-		if i > 625:
-			i = 625
-		else:
-			print('Y-axis is centered')
+            elif circles[-1].y > 240: # to left?
+                i = i + 1
+                pwm.set_pwm(0, 0, i)
+                time.sleep(0.010)
+                if i > 625:
+                    i = 625
+                else:
+                    print('Y-axis is Centered')
 except KeyboardInterrupt:
-	GPIO.cleanup()
-	thermocouple.cleanup()
-	print('Terminated')
+    GPIO.cleanup()
+    thermocouple.cleanup()
+    print('Terminated')
 
