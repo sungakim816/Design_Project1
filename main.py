@@ -1,4 +1,4 @@
-from Tools.solar import Solar
+from Tools.solar import Solar 
 
 def main():
     test = Solar()
@@ -10,7 +10,7 @@ def main():
                 test.print_sun_coordinates() 
             test.show_image()                          
     except KeyboardInterrupt:
-            print('Terminated') 
+            print('Terminated')
 
 # main thread
 main()
