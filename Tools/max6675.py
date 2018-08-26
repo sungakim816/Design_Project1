@@ -61,7 +61,7 @@ class MAX6675(object):
         # Save data
         self.data = bytesin
 
-    def checkErrors(self, data_16 = None):
+    def checkErrors(self, data_16=None):
         '''Checks errors on bit D2'''
         if data_16 is None:
             data_16 = self.data
@@ -70,7 +70,7 @@ class MAX6675(object):
         if noConnection:
             raise MAX6675Error("No Connection") # open thermocouple
 
-    def data_to_tc_temperature(self, data_16 = None):
+    def data_to_tc_temperature(self, data_16=None):
         '''Takes an integer and returns a thermocouple temperature in celsius.'''
         if data_16 is None:
             data_16 = self.data
@@ -96,11 +96,14 @@ class MAX6675(object):
         GPIO.setup(self.cs_pin, GPIO.IN)
         GPIO.setup(self.clock_pin, GPIO.IN)
 
+
 class MAX6675Error(Exception):
-     def __init__(self, value):
-         self.value = value
-     def __str__(self):
-         return repr(self.value)
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
 
 if __name__ == "__main__":
 

@@ -68,12 +68,12 @@ def move_step1():
 
 
 def move_right():
-	global state
-	global DIRpos
-	global DIRneg
-	GPIO.output(DIRpos, True)
-	GPIO.output(DIRneg, False)
-	state = True
+    global state
+    global DIRpos
+    global DIRneg
+    GPIO.output(DIRpos, True)
+    GPIO.output(DIRneg, False)
+    state = True
 
 
 def move_left():
@@ -83,9 +83,7 @@ def move_left():
     GPIO.output(DIRpos, False)
     GPIO.output(DIRneg, True)
     state = False
-         
-        
-        
+       
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(PULneg, GPIO.OUT)
 GPIO.setup(DIRpos, GPIO.OUT)
@@ -198,4 +196,3 @@ except KeyboardInterrupt:
     GPIO.cleanup()
     thermocouple.cleanup()
     print('Terminated')
-
