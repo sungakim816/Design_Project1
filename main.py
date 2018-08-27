@@ -33,7 +33,7 @@ def main():
                 else:
                     print('Y-axis is centered')
             else:
-                print('Sun Not Founde')  # do something about it
+                print('Sun Not Found')  # do something about it
             solar_dream.show_image()
     except KeyboardInterrupt:
         print('Terminated')

@@ -95,7 +95,7 @@ class SolarCamera:
 
 
 class SolarMovement(object):
-    def __int__(
+    def __init__(
         self,
         pulneg=11, dirpos=13,
         dirneg=15, enblpin=12
