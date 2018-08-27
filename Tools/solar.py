@@ -5,7 +5,7 @@ from SimpleCV import (
     DrawingLayer
 )
 import RPi.GPIO as GPIO
-from Adafruit_PCA9685 import PCA9685
+from Adafruit_PCA9685 import PCA9685, software_reset
 import time
 
 

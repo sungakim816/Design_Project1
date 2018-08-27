@@ -36,6 +36,8 @@ def main():
                 print('Sun Not Found')  # do something about it
             solar_dream.show_image()
     except KeyboardInterrupt:
+        solar_movement.GPIO.cleanup()
+        solar_movement.servo_software_reset()
         print('Terminated')
 
 
