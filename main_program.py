@@ -42,7 +42,7 @@ def move_step():
         if state:
             counter = counter + 1
         else:
-            counter = counter - 1 
+            counter = counter - 1
 
         for step in range(0, 67, 1):
             GPIO.output(PULneg, True)
@@ -83,7 +83,8 @@ def move_left():
     GPIO.output(DIRpos, False)
     GPIO.output(DIRneg, True)
     state = False
-       
+
+
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(PULneg, GPIO.OUT)
 GPIO.setup(DIRpos, GPIO.OUT)
@@ -103,7 +104,7 @@ display = Display(winsize)
 normaldisplay = True
 
 # SERVO INITIALIZATION
-pwm = Adafruit_PCA9685.PCA9685(0x40) #PCA
+pwm = Adafruit_PCA9685.PCA9685(0x40)  # PCA
 servo_initial = 375
 circle_x = 0
 circle_y = 0
@@ -118,17 +119,22 @@ pwm.set_pwm(0, 0, servo_initial)
 time.sleep(0.0166667)
 i = servo_initial
 
-center = (320,240) #  dito i-uudjust ung center for calibration ng fresnel lens
-scope_layer = DrawingLayer(winsize) #same as window size
+# dito i-uudjust ung center for calibration ng fresnel lens
+center = (320, 240)
+scope_layer = DrawingLayer(winsize)  # same as window size
 
 
 #  (position/coordinates, diameter, Color, Thickness of the lines)
 scope_layer.circle(center, 50, Color.BLACK, width=3)
 scope_layer.circle(center, 100, Color.BLACK, width=2)
-scope_layer.line((center[0], center[1] - 50),(center[0], 0), Color.BLACK, width=2)
-scope_layer.line((center[0],center[1] + 50), (center[0], winsize[1]), Color.BLACK, width=2)
-scope_layer.line((center[0]-50, center[1]), (0, center[1]), Color.BLACK, width=2)
-scope_layer.line((center[0]+50, center[1]), (winsize[0], center[1]), Color.BLACK, width=2)
+scope_layer.line((center[0], center[1] - 50),
+                 (center[0], 0), Color.BLACK, width=2)
+scope_layer.line((center[0], center[1] + 50),
+                 (center[0], winsize[1]), Color.BLACK, width=2)
+scope_layer.line((center[0]-50, center[1]),
+                 (0, center[1]), Color.BLACK, width=2)
+scope_layer.line((center[0]+50, center[1]),
+                 (winsize[0], center[1]), Color.BLACK, width=2)
 
 
 def temp_reading():
@@ -145,46 +151,49 @@ try:
             dist = img.colorDistance(Color.BLACK).dilate(2)
             segmented = dist.stretch(250, 255)
             blobs = segmented.findBlobs(minsize=2000)
-             
+
             if blobs:
                 circles = blobs.filter([b.isCircle(0.2) for b in blobs])
                 if circles:
-                    img.drawCircle((circles[-1].x, circles[-1].y), circles[-1].radius(), Color.BLUE, 3)
+                    img.drawCircle(
+                        (circles[-1].x, circles[-1].y), circles[-1].radius(), Color.BLUE, 3)
                     print("Sun Found")
                     print(circles[-1].x)
                     print(circles[-1].y)
                     img.addDrawingLayer(scope_layer)
                     img.show()
                     break
-                
+
                 else:
                     img.addDrawingLayer(scope_layer)
                     img.show()
                     print('Sun Not Found')
-            
+
             else:
                 img.addDrawingLayer(scope_layer)
                 img.show()
 
-        if 320 - circles[-1].x > sensitivity or circles[-1].x - 320 > sensitivity:  # for adjusting the x-axis
+        # for adjusting the x-axis
+        if 320 - circles[-1].x > sensitivity or circles[-1].x - 320 > sensitivity:
             GPIO.output(enblPin, True)
             if circles[-1].x < 320:
                 move_left()
-                move_step()                                                
+                move_step()
             elif circles[-1].x > 320:
                 move_right()
                 move_step()
         else:
             print('X-axis is centered')
             GPIO.output(enblPin, False)
-        if 240 - circles[-1].y > sensitivity or circles[-1].y - 240 > sensitivity:  # for adjusting the y-axis
+        # for adjusting the y-axis
+        if 240 - circles[-1].y > sensitivity or circles[-1].y - 240 > sensitivity:
             if circles[-1].y < 240:  # to right
                 i = i - 1
                 pwm.set_pwm(0, 0, i)
                 time.sleep(0.010)
                 if i < 125:
                     i = 125
-            elif circles[-1].y > 240: # to left?
+            elif circles[-1].y > 240:  # to left?
                 i = i + 1
                 pwm.set_pwm(0, 0, i)
                 time.sleep(0.010)

@@ -31,7 +31,7 @@ def main():
                     elif sun_coor[1] > window_center[1]:
                         solar_movement.servo_left()
                 else:
-                    print('Y-axis is centered')   
+                    print('Y-axis is centered')
             else:
                 print('Sun Not Founde')  # do something about it
             solar_dream.show_image()

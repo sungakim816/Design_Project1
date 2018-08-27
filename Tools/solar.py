@@ -3,7 +3,7 @@ from SimpleCV import (
     Color,
     Display,
     DrawingLayer
-    )
+)
 import RPi.GPIO as GPIO
 from Adafruit_PCA9685 import PCA9685
 import time
@@ -35,7 +35,8 @@ class SolarCamera:
     def is_there_sun(self):
         self.__binarize_image()  # binarize image
         if self.__blobs:
-            self.__circles = self.__blobs.filter([b.isCircle(0.2) for b in self.__blobs])
+            self.__circles = self.__blobs.filter(
+                [b.isCircle(0.2) for b in self.__blobs])
             if self.__circles:
                 return True
         return False
@@ -61,25 +62,33 @@ class SolarCamera:
             self.__circles[-1].radius(),
             Color.BLUE, 3
         )
-    
+
     @property
     def get_sun_coordinates(self):
         return (self.__circles[-1].x, self.__circles[-1].y)
-                            
+
     def initialize_scope_layer(self):
-        self.__scope_layer = DrawingLayer(self.window_size) #  same as window size
+        self.__scope_layer = DrawingLayer(
+            self.window_size)  # same as window size
         #  (position/coordinates, diameter, Color, Thickness of the lines)
-        self.__scope_layer.circle(self.__window_center, 50, Color.BLACK, width=3)
-        self.__scope_layer.circle(self.__window_center, 100, Color.BLACK, width=2)
-        self.__scope_layer.line((self.__window_center[0], self.__window_center[1]-50),(self.__window_center[0], 0), Color.BLACK, width=2)
-        self.__scope_layer.line((self.__window_center[0], self.__window_center[1]+50), (self.__window_center[0], self.window_size[1]), Color.BLACK, width=2)
-        self.__scope_layer.line((self.__window_center[0]-50, self.__window_center[1]), (0, self.__window_center[1]), Color.BLACK, width=2)
-        self.__scope_layer.line((self.__window_center[0]+50, self.__window_center[1]), (self.window_size[0], self.__window_center[1]), Color.BLACK, width=2)
-            
+        self.__scope_layer.circle(
+            self.__window_center, 50, Color.BLACK, width=3)
+        self.__scope_layer.circle(
+            self.__window_center, 100, Color.BLACK, width=2)
+        self.__scope_layer.line(
+            (self.__window_center[0], self.__window_center[1]-50), (self.__window_center[0], 0), Color.BLACK, width=2)
+        self.__scope_layer.line((self.__window_center[0], self.__window_center[1]+50), (
+            self.__window_center[0], self.window_size[1]), Color.BLACK, width=2)
+        self.__scope_layer.line(
+            (self.__window_center[0]-50, self.__window_center[1]), (0, self.__window_center[1]), Color.BLACK, width=2)
+        self.__scope_layer.line((self.__window_center[0]+50, self.__window_center[1]), (
+            self.window_size[0], self.__window_center[1]), Color.BLACK, width=2)
+
     def print_sun_coordinates(self):
         if self.__circles:
-            print("x:", self.get_sun_coordinates[0], "y:", self.get_sun_coordinates[1])
-    
+            print("x:", self.get_sun_coordinates[0],
+                  "y:", self.get_sun_coordinates[1])
+
     @property
     def get_window_center(self):
         return self.__window_center
@@ -138,14 +147,13 @@ class SolarMovement(object):
             time.sleep(0.00035)
             self.GPIO.output(self.__pulneg, False)
             time.sleep(0.00035)
-            
+
     def stepper_enable(self):
         self.GPIO.output(self.__enblpin, True)
-        
+
     def stepper_disable(self):
         self.GPIO.output(self.__enblpin, False)
-        
-            
+
     def servo_right(self):
         self.servo_current = self.servo_current - 1
         self.servo_current = (self.servo_min
