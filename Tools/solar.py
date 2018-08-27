@@ -126,7 +126,7 @@ class SolarMovement(object):
         self.servo_max = 625
         self.servo_initial = 375
         self.servo_current = self.servo_initial
-        self.servo.set_pwm(0, 0, self.initial)
+        self.servo.set_pwm(0, 0, self.servo_initial)
         time.sleep(0.016667)
 
     def stepper_move_left(self):
