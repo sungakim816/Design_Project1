@@ -117,12 +117,12 @@ if __name__ == "__main__":
     while(running):
         try:            
             try:
-                tc = thermocouple.get()        
+                tc = thermocouple.get()
+                print("tc: {}".format(tc))
+                time.sleep(1)        
             except MAX6675Error as e:
                 tc = "Error: "+ e.value
                 running = False
-                print("tc: {}".format(tc))
-            time.sleep(1)
         except KeyboardInterrupt:
             running = False
     thermocouple.cleanup()

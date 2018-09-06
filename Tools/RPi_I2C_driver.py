@@ -101,7 +101,7 @@ Rw = 0b00000010  # Read/Write bit
 Rs = 0b00000001  # Register select bit
 
 
-class lcd:
+class LiquidCrystal:
    # initializes objects and lcd
     def __init__(self):
         self.lcd_device = i2c_device(ADDRESS)
@@ -192,3 +192,14 @@ class lcd:
 
 if __name__ == '__main__':
     print(__doc__)
+    liquid = LiquidCrystal()
+    liquid.lcd_clear()
+    n = 0
+    for i in range(1, 11):
+        liquid.lcd_display_string("({0}) Kim Sunga".format(i), 1)
+        sleep(1)
+        liquid.lcd_clear()
+    for i in range(10, 0, -1):
+        liquid.lcd_display_string("({0}) Kim Sunga".format(i), 1)
+        sleep(1)
+        liquid.lcd_clear()

@@ -37,7 +37,7 @@ def main():
             solar_dream.show_image()
     except KeyboardInterrupt:
         solar_movement.GPIO.cleanup()
-        solar_movement.servo_software_reset()
+        solar_movement.servo_reset()
         print('Terminated')
 
 

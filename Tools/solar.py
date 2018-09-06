@@ -5,7 +5,7 @@ from SimpleCV import (
     DrawingLayer
 )
 import RPi.GPIO as GPIO
-from Adafruit_PCA9685 import PCA9685, software_reset
+from Tools.pca9685 import PCA9685
 import time
 
 
@@ -121,7 +121,7 @@ class SolarMovement(object):
         self.direction = None
         # Servo Motor
         self.servo = PCA9685(0x40)
-        self.servo.set_pwm_freq(60)
+        self.servo.software_reset()
         self.servo_min = 125
         self.servo_max = 625
         self.servo_initial = 375
@@ -171,3 +171,6 @@ class SolarMovement(object):
     def __servo_move(self):
         self.servo.set_pwm(0, 0, self.servo_current)
         time.sleep(0.010)
+
+    def servo_reset(self):
+        self.servo.software_reset()
