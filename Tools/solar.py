@@ -5,7 +5,7 @@ from SimpleCV import (
     DrawingLayer
 )
 import RPi.GPIO as GPIO
-from Tools.pca9685 import PCA9685
+from Adafruit_PCA9685 import PCA9685
 import time
 
 
@@ -95,11 +95,14 @@ class SolarCamera:
 
 
 class SolarMovement(object):
-    def __init__(
-        self,
-        pulneg=11, dirpos=13,
-        dirneg=15, enblpin=12
-    ):
+    def __init__(self,
+                pulneg=11,
+                dirpos=13,
+                dirneg=15,
+                enblpin=12,
+                servo_increment=1
+                ):
+        
         # Stepper Motor
         self.__pulneg = pulneg
         self.__dirpos = dirpos
@@ -121,14 +124,14 @@ class SolarMovement(object):
         self.direction = None
         # Servo Motor
         self.servo = PCA9685(0x40)
-        self.servo.software_reset()
+        self.servo.set_pwm_freq(60)
         self.servo_min = 125
         self.servo_max = 625
         self.servo_initial = 375
         self.servo_current = self.servo_initial
-        self.servo.set_pwm(0, 0, self.servo_initial)
-        time.sleep(0.016667)
-
+        self.__servo_increment = int(servo_increment)
+        print("Hello", self.servo_current)
+        
     def stepper_move_left(self):
         self.GPIO.output(self.__dirpos, False)
         self.GPIO.output(self.__dirneg, True)
@@ -147,22 +150,23 @@ class SolarMovement(object):
             time.sleep(0.00035)
             self.GPIO.output(self.__pulneg, False)
             time.sleep(0.00035)
-
+            
     def stepper_enable(self):
         self.GPIO.output(self.__enblpin, True)
-
+        
     def stepper_disable(self):
         self.GPIO.output(self.__enblpin, False)
-
+        
+            
     def servo_right(self):
-        self.servo_current = self.servo_current - 1
+        self.servo_current = (self.servo_current - self.__servo_increment)
         self.servo_current = (self.servo_min
                               if self.servo_current <= self.servo_min
                               else self.servo_current)
         self.__servo_move()
 
     def servo_left(self):
-        self.servo_current = self.servo_current + 1
+        self.servo_current = (self.servo_current + self.__servo_increment)
         self.servo_current = (self.servo_max
                               if self.servo_current >= self.servo_max
                               else self.servo_current)
@@ -172,5 +176,11 @@ class SolarMovement(object):
         self.servo.set_pwm(0, 0, self.servo_current)
         time.sleep(0.010)
 
-    def servo_reset(self):
-        self.servo.software_reset()
+    def set_servo_increment(self, servo_increment):
+        self.__servo_increment = int(servo_increment)
+
+    def get_servo_increment(self):
+        return self.__servo_increment
+
+    def clean_up(self):
+        self.GPIO.cleanup()

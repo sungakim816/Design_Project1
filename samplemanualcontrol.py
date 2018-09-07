@@ -1,16 +1,19 @@
 import RPi.GPIO as GPIO
 import time
+from Tools.solar import SolarMovement
 
+solar_movement = SolarMovement()
+solar_movement.set_servo_increment(3)
 
-previousServoX = False
-previousServoY = False
-previousStepperX = False
-previousStepperY = False
+previousServoLeft = False
+previousServoRight = False
+previousStepperLeft = False
+previousStepperRight = False
 
-currentServoX = False
-currentServoY = False
-currentStepperX = False
-currentStepperY = False
+currentServoLeft = False
+currentServoRight = False
+currentStepperLeft = False
+currentStepperRight = False
 
 
 def read_debounce(pinNum, previousButtonState):
@@ -20,49 +23,52 @@ def read_debounce(pinNum, previousButtonState):
         
 
 def main():
-    global previousServoX
-    global previousServoY
-    global previousStepperX
-    global previousStepperY
+    global previousServoLeft
+    global previousServoRight
+    global previousStepperLeft
+    global previousStepperRight
 
-    global currentServoX
-    global currentServoY 
-    global currentStepperX
-    global currentStepperY
+    global currentServoLeft
+    global currentServoRight 
+    global currentStepperLeft
+    global currentStepperRight
 
-    stateServoX = False
-    stateServoY = False
-    stateStepperX = False
-    stateStepperY = False
+    stateServoLeft = False
+    stateServoRight = False
+    stateStepperLeft = False
+    stateStepperRight = False
     
     GPIO.setmode(GPIO.BOARD)
     
-    input_servo_x = 31
-    input_servo_y = 33
-    input_stepper_x = 35
-    input_stepper_y = 37
-    output_servo_x = 40
-    output_servo_y = 38
-    output_stepper_x = 36
-    output_stepper_y = 32
+    input_servo_left = 31
+    input_servo_right = 33
+    input_stepper_left = 35
+    input_stepper_right = 37
+    # output_servo_left = 40
+    # output_servo_right = 38
+    # output_stepper_left = 36
+    # output_stepper_right = 32
     
-    GPIO.setup(input_servo_x, GPIO.IN)
-    GPIO.setup(input_servo_y, GPIO.IN)
-    GPIO.setup(input_stepper_x, GPIO.IN)
-    GPIO.setup(input_stepper_y, GPIO.IN)
-    GPIO.setup(output_servo_x, GPIO.OUT)
-    GPIO.setup(output_servo_y, GPIO.OUT)
-    GPIO.setup(output_stepper_x, GPIO.OUT)
-    GPIO.setup(output_stepper_y, GPIO.OUT)
+    GPIO.setup(input_servo_left, GPIO.IN)
+    GPIO.setup(input_servo_right, GPIO.IN)
+    GPIO.setup(input_stepper_left, GPIO.IN)
+    GPIO.setup(input_stepper_right, GPIO.IN)
+    # GPIO.setup(output_servo_left, GPIO.OUT)
+    # GPIO.setup(output_servo_right, GPIO.OUT)
+    # GPIO.setup(output_stepper_left, GPIO.OUT)
+    # GPIO.setup(output_stepper_right, GPIO.OUT)
     
     try:
         while True:
-            currentServoX = read_debounce(input_servo_x, previousServoX)
-            if previousServoX == False and currentServoX:
-                stateServoX = not stateServoX
-                print('Button State:', stateServoX)
-                GPIO.output(output_servo_x, stateServoX)
-            previousServoX = currentServoX
+            currentServoLeft = read_debounce(input_servo_left, previousServoLeft)
+            currentServoRight = read_debounce(input_servo_right, previousServoRight)
+            if previousServoLeft == False and currentServoLeft:
+                solar_movement.servo_left()
+            previousServoLeft = currentServoLeft
+
+            if previousServoRight == False and currentServoRight:
+                solar_movement.servo_right()
+            previousServoRight = currentServoRight
                           
     except KeyboardInterrupt:
         GPIO.cleanup()
@@ -70,4 +76,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+    solar_movement.clean_up()
