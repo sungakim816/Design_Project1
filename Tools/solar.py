@@ -95,13 +95,11 @@ class SolarCamera:
 
 
 class SolarMovement(object):
-    def __init__(self,
-                pulneg=11,
-                dirpos=13,
-                dirneg=15,
-                enblpin=12,
-                servo_increment=1
-                ):
+    def __init__(
+        self, pulneg=11,
+        dirpos=13, dirneg=15,
+        enblpin=12, servo_increment=1
+        ):
         
         # Stepper Motor
         self.__pulneg = pulneg
@@ -120,7 +118,7 @@ class SolarMovement(object):
         self.GPIO.output(self.__pulneg, False)
         self.GPIO.output(self.__dirpos, False)
         self.GPIO.output(self.__dirneg, False)
-        self.GPIO.output(self.__enblpin, True)
+        self.GPIO.output(self.__enblpin, False)
         self.direction = None
         # Servo Motor
         self.servo = PCA9685(0x40)
@@ -130,21 +128,21 @@ class SolarMovement(object):
         self.servo_initial = 375
         self.servo_current = self.servo_initial
         self.__servo_increment = int(servo_increment)
-        print("Hello", self.servo_current)
+        self.servo.set_pwm(0, 0, self.servo_current)
         
-    def stepper_move_left(self):
+    def stepper_move_left(self, steps=134):
         self.GPIO.output(self.__dirpos, False)
         self.GPIO.output(self.__dirneg, True)
         self.direction = False
-        self.__stepper_move()
+        self.__stepper_move(int(steps))
 
-    def stepper_move_right(self):
+    def stepper_move_right(self, steps=134):
         self.GPIO.output(self.__dirpos, True)
         self.GPIO.output(self.__dirneg, False)
         self.direction = True
-        self.__stepper_move()
+        self.__stepper_move(int(steps))
 
-    def __stepper_move(self):
+    def __stepper_move(self, steps=134):
         for step in range(0, 134, 1):
             self.GPIO.output(self.__pulneg, True)
             time.sleep(0.00035)
