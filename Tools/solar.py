@@ -99,8 +99,8 @@ class SolarMovement(object):
         self, pulneg=11,
         dirpos=13, dirneg=15,
         enblpin=12, servo_increment=1
-        ):
-        
+    ):
+
         # Stepper Motor
         self.__pulneg = pulneg
         self.__dirpos = dirpos
@@ -125,10 +125,10 @@ class SolarMovement(object):
         self.servo_min = 125
         self.servo_max = 625
         self.servo_initial = 375
-        self.servo_current = self.servo_initial
+        self.__servo_current = self.servo_initial
         self.__servo_increment = int(servo_increment)
-        self.servo.set_pwm(0, 0, self.servo_current)
-        
+        self.servo.set_pwm(0, 0, self.__servo_current)
+
     def stepper_move_left(self, steps=134):
         self.GPIO.output(self.__dirpos, False)
         self.GPIO.output(self.__dirneg, True)
@@ -145,30 +145,29 @@ class SolarMovement(object):
             time.sleep(0.00035)
             self.GPIO.output(self.__pulneg, False)
             time.sleep(0.00035)
-            
+
     def stepper_enable(self):
         self.GPIO.output(self.__enblpin, True)
-        
+
     def stepper_disable(self):
         self.GPIO.output(self.__enblpin, False)
-        
-            
+
     def servo_right(self):
-        self.servo_current = (self.servo_current - self.__servo_increment)
-        self.servo_current = (self.servo_min
-                              if self.servo_current <= self.servo_min
-                              else self.servo_current)
+        self.__servo_current = (self.__servo_current - self.__servo_increment)
+        self.__servo_current = (self.servo_min
+                                if self.__servo_current <= self.servo_min
+                                else self.__servo_current)
         self.__servo_move()
 
     def servo_left(self):
-        self.servo_current = (self.servo_current + self.__servo_increment)
-        self.servo_current = (self.servo_max
-                              if self.servo_current >= self.servo_max
-                              else self.servo_current)
+        self.__servo_current = (self.__servo_current + self.__servo_increment)
+        self.__servo_current = (self.servo_max
+                                if self.__servo_current >= self.servo_max
+                                else self.__servo_current)
         self.__servo_move()
 
     def __servo_move(self):
-        self.servo.set_pwm(0, 0, self.servo_current)
+        self.servo.set_pwm(0, 0, self.__servo_current)
         time.sleep(0.010)
 
     def set_servo_increment(self, servo_increment):
@@ -176,3 +175,9 @@ class SolarMovement(object):
 
     def clean_up(self):
         self.GPIO.cleanup()
+
+    def get_servo_current_position(self):
+        return self.__servo_current
+
+    def set_servo_current_position(self, servo_pos):
+        self.__servo_current = servo_pos
