@@ -44,15 +44,15 @@ def manualStepperAdjust():
     currentServoRight = read_debounce(input_servo_right, previousServoRight)
 
     if (previousStepperLeft == False and currentStepperLeft) or (previousStepperLeft and currentStepperLeft):
-        # solar_movement.stepper_enable()
-        # solar_movement.stepper_move_left(300)
+        solar_movement.stepper_enable()
+        solar_movement.stepper_move_left(200)
         print('Stepper Moving Left')
-        # solar_movement.stepper_disable()
+        solar_movement.stepper_disable()
     elif (previousStepperRight == False and currentStepperRight) or (previousStepperRight and currentStepperRight):
-        # solar_movement.stepper_enable()
-        # solar_movement.stepper_move_right(300)
+        solar_movement.stepper_enable()
+        solar_movement.stepper_move_right(200)
         print('Stepper Moving Right')
-        # solar_movement.stepper_disable()
+        solar_movement.stepper_disable()
     previousStepperLeft = currentStepperLeft
     previousStepperRight = currentStepperRight
 
@@ -67,10 +67,10 @@ def manualServoAdjust():
     currentStepperRight = read_debounce(input_stepper_right, previousStepperRight)
     
     if (previousServoLeft == False and currentServoLeft) or (previousServoLeft and currentServoLeft):
-        # solar_movement.servo_left()
+        solar_movement.servo_left()
         print('Servo Moving Left')
     elif previousServoRight == False and currentServoRight or (previousServoRight and currentServoRight):
-        # solar_movement.servo_right()
+        solar_movement.servo_right()
         print('Servo Moving Right')
 
     previousServoLeft = currentServoLeft

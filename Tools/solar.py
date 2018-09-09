@@ -119,7 +119,6 @@ class SolarMovement(object):
         self.GPIO.output(self.__dirpos, False)
         self.GPIO.output(self.__dirneg, False)
         self.GPIO.output(self.__enblpin, False)
-        self.direction = None
         # Servo Motor
         self.servo = PCA9685(0x40)
         self.servo.set_pwm_freq(60)
@@ -133,17 +132,15 @@ class SolarMovement(object):
     def stepper_move_left(self, steps=134):
         self.GPIO.output(self.__dirpos, False)
         self.GPIO.output(self.__dirneg, True)
-        self.direction = False
         self.__stepper_move(int(steps))
 
     def stepper_move_right(self, steps=134):
         self.GPIO.output(self.__dirpos, True)
         self.GPIO.output(self.__dirneg, False)
-        self.direction = True
-        self.__stepper_move(int(steps))
+        self.__stepper_move(steps)
 
     def __stepper_move(self, steps=134):
-        for step in range(0, 134, 1):
+        for step in range(0, steps, 1):
             self.GPIO.output(self.__pulneg, True)
             time.sleep(0.00035)
             self.GPIO.output(self.__pulneg, False)
@@ -176,9 +173,6 @@ class SolarMovement(object):
 
     def set_servo_increment(self, servo_increment):
         self.__servo_increment = int(servo_increment)
-
-    def get_servo_increment(self):
-        return self.__servo_increment
 
     def clean_up(self):
         self.GPIO.cleanup()
