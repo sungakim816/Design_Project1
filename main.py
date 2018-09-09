@@ -2,7 +2,8 @@ from Tools.solar import SolarCamera, SolarMovement
 
 
 solar_dream = SolarCamera()
-solar_movement = SolarMovement()
+# pulneg, dirpos, dirneg, enblpin, servo_increment
+solar_movement = SolarMovement(11, 13, 15, 12, 1)
 
 switch_auto = 40
 switch_manual = 38
