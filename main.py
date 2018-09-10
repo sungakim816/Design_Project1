@@ -16,6 +16,10 @@ def monitor_display():
     solar_dream.show_image()
 
 
+def monitor_display_manual_mode():
+    pass
+
+
 def automated(sensitivity):
     sun_coor = None
     if solar_dream.is_there_sun:
@@ -88,6 +92,7 @@ def manualServoAdjust(solar_movement, manual):
     previousServoRight = False
     currentServoLeft = False
     currentServoRight = False
+    solar_movement.set_servo_increment(1)
     while manual.value:
         currentServoLeft = read_debounce(input_servo_left, previousServoLeft)
         currentServoRight = read_debounce(
@@ -101,6 +106,7 @@ def manualServoAdjust(solar_movement, manual):
         previousServoLeft = currentServoLeft
         previousServoRight = currentServoRight
         manual = Value("i", GPIO.input(switch_manual))
+
 
 def standbyMode():
     monitor_display()
