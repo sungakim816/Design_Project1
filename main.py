@@ -14,7 +14,6 @@ cs_pin = 24
 clock_pin = 23
 data_pin = 22
 unit = "c"
-tc = 0.0
 thermocouple = MAX6675(cs_pin, clock_pin, data_pin, unit)
 
 
@@ -164,7 +163,8 @@ if __name__ == "__main__":
                                    args=(solar_movement, manual))
                 process2 = Process(target=manualStepperAdjust,
                                    args=(solar_movement, manual))
-                process3 = Process(target=monitor_display_manual_mode, args=(manual,))
+                process3 = Process(
+                    target=monitor_display_manual_mode, args=(manual,))
                 process1.start()
                 process2.start()
                 process3.start()
