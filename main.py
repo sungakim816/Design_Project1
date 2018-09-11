@@ -2,11 +2,21 @@ from Tools.solar import SolarCamera, SolarMovement
 import RPi.GPIO as GPIO
 import time
 from multiprocessing import Value, Array, Process
+from Tools.RPi_I2C_driver import lcd as LiquidCrystalDisplay
+from Tools.max6675 import MAX6675
 
 
 # pulneg, dirpos, dirneg, enblpin, servo_increment
 solar_movement = SolarMovement()
 solar_dream = SolarCamera()
+lcd = LiquidCrystalDisplay
+thermocouple = MAX6675(cs_pin, clock_pin, data_pin, unit)
+
+
+def display_temperature_reading():
+    temp = thermocouple.get()
+    lcd.lcd_display_string("Temperature: ", 1)
+    lcd.lcd_display_string(str(temp), 2)
 
 
 def monitor_display():
@@ -106,6 +116,9 @@ def manualServoAdjust(solar_movement, manual):
         previousServoLeft = currentServoLeft
         previousServoRight = currentServoRight
         manual = Value("i", GPIO.input(switch_manual))
+
+
+def
 
 
 def standbyMode():
