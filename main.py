@@ -32,6 +32,7 @@ def monitor_display_manual_mode():
         if solar_dream.is_there_sun:
             solar_dream.mark_sun()
         solar_dream.show_image()
+        manual = Value("i", GPIO.input(switch_manual))
 
 
 def automated(sensitivity):
