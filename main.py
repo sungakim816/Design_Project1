@@ -10,6 +10,11 @@ from Tools.max6675 import MAX6675
 solar_movement = SolarMovement()
 solar_dream = SolarCamera()
 lcd = LiquidCrystalDisplay
+cs_pin = 24
+clock_pin = 23
+data_pin = 22
+unit = "c"
+tc = 0.0
 thermocouple = MAX6675(cs_pin, clock_pin, data_pin, unit)
 
 
@@ -26,7 +31,7 @@ def monitor_display():
     solar_dream.show_image()
 
 
-def monitor_display_manual_mode():
+def monitor_display_manual_mode(manual):
     while manual.value:
         solar_dream.get_image()
         if solar_dream.is_there_sun:
@@ -123,9 +128,6 @@ def manualServoAdjust(solar_movement, manual):
         manual = Value("i", GPIO.input(switch_manual))
 
 
-def
-
-
 def standbyMode():
     monitor_display()
 
@@ -162,12 +164,16 @@ if __name__ == "__main__":
                                    args=(solar_movement, manual))
                 process2 = Process(target=manualStepperAdjust,
                                    args=(solar_movement, manual))
+                process3 = Process(target=monitor_display_manual_mode, args=(manual,))
                 process1.start()
                 process2.start()
+                process3.start()
                 process1.terminate()
                 process2.terminate()
+                process3.terminate()
                 process1.join()
                 process2.join()
+                process3.join()
             else:
                 solar_movement.stepper_disable()
                 print("StandBy Mode")
