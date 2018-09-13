@@ -2,11 +2,11 @@ from SimpleCV import Camera, Color, Display, DrawingLayer
 import Adafruit_PCA9685
 import spidev
 import RPi.GPIO as GPIO
-from Tools.RPi_I2C_driver import lcd as LiquidCrystalDisplay
+from Tools.RPi_I2C_driver import LiquidCrystal as LiquidCrystalDisplay
 from Tools.max6675 import MAX6675
 import time
 
-lcd = LiquidCrystalDisplay
+lcd = LiquidCrystalDisplay()
 
 cs_pin = 24
 clock_pin = 23

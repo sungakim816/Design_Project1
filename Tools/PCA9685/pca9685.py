@@ -82,7 +82,7 @@ class PCA9685(object):
         logger.debug('Estimated pre-scale: {0}'.format(prescaleval))
         prescale = int(math.floor(prescaleval + 0.5))
         logger.debug('Final pre-scale: {0}'.format(prescale))
-        oldmode = self._device.readU8(MODE1);
+        oldmode = self._device.readU8(MODE1)
         newmode = (oldmode & 0x7F) | 0x10    # sleep
         self._device.write8(MODE1, newmode)  # go to sleep
         self._device.write8(PRESCALE, prescale)
@@ -112,4 +112,3 @@ class PCA9685(object):
             i2c = I2C
         self._device = i2c.get_i2c_device(self.__address, **kwargs)
         self._device.writeRaw8(0x06)  # SWRST
-

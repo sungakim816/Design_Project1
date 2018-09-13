@@ -5,7 +5,7 @@ from SimpleCV import (
     DrawingLayer
 )
 import RPi.GPIO as GPIO
-from Adafruit_PCA9685 import PCA9685
+from PCA9685.pca9685 import PCA9685
 import time
 
 
@@ -153,14 +153,14 @@ class SolarMovement(object):
         self.GPIO.output(self.__enblpin, False)
 
     def servo_right(self):
-        self.__servo_current = (self.__servo_current - self.__servo_increment)
+        self.__servo_current = self.__servo_current - self.__servo_increment
         self.__servo_current = (self.servo_min
                                 if self.__servo_current <= self.servo_min
                                 else self.__servo_current)
         self.__servo_move()
 
     def servo_left(self):
-        self.__servo_current = (self.__servo_current + self.__servo_increment)
+        self.__servo_current = self.__servo_current + self.__servo_increment
         self.__servo_current = (self.servo_max
                                 if self.__servo_current >= self.servo_max
                                 else self.__servo_current)
@@ -181,3 +181,4 @@ class SolarMovement(object):
 
     def set_servo_current_position(self, servo_pos):
         self.__servo_current = servo_pos
+        self.__servo_move()
