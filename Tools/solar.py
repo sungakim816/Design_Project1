@@ -122,8 +122,8 @@ class SolarMovement(object):
         # Servo Motor
         self.servo = PCA9685(0x40)
         self.servo.set_pwm_freq(60)
-        self.servo_min = 125
-        self.servo_max = 625
+        self.servo_min = 208
+        self.servo_max = 541
         self.servo_initial = 375
         self.__servo_current = self.servo_initial
         self.__servo_increment = int(servo_increment)

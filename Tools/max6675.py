@@ -93,8 +93,7 @@ class MAX6675(object):
 
     def cleanup(self):
         '''Selective GPIO cleanup'''
-        GPIO.setup(self.cs_pin, GPIO.IN)
-        GPIO.setup(self.clock_pin, GPIO.IN)
+        GPIO.cleanup()
 
 
 class MAX6675Error(Exception):
@@ -118,6 +117,7 @@ if __name__ == "__main__":
         try:            
             try:
                 tc = thermocouple.get()
+                thermocouple.checkErrors()
                 print("tc: {}".format(tc))
                 time.sleep(1)        
             except MAX6675Error as e:
