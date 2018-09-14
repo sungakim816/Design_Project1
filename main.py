@@ -11,12 +11,12 @@ from subprocess import call
 # pulneg, dirpos, dirneg, enblpin, servo_increment
 solar_movement = SolarMovement()
 solar_dream = SolarCamera()
-lcd = LiquidCrystalDisplay()
-cs_pin = 24
-clock_pin = 23
-data_pin = 22
-unit = "c"
-thermocouple = MAX6675(cs_pin, clock_pin, data_pin, unit)
+display = LiquidCrystalDisplay()
+CS_PIN = 24
+CLOCK_PIN = 23
+DATA_PIN = 22
+UNIT = "c"
+thermocouple = MAX6675(CS_PIN, CLOCK_PIN, DATA_PIN, UNIT)
 current_stepper_angle = Value('d', 90.00)
 global_sun_coor = Array('i', 2)
 current_servo_pos = Value('i', solar_movement.get_servo_current_position())
@@ -26,19 +26,19 @@ mpuSensor = mpu6050(0x68)
 def lcd_display_temp_mode():
     while True:
         temp = thermocouple.get()
-        lcd.lcd_display_string("Temp: {0}*C".format(str(temp)), 1)
+        display.lcd_display_string("Temp: {0}*C".format(str(temp)), 1)
         if GPIO.input(switch_auto):
-            lcd.lcd_display_string("Mode: Auto", 2)
+            display.lcd_display_string("Mode: Auto", 2)
         elif GPIO.input(switch_manual):
-            lcd.lcd_display_string("Mode: Manual", 2)
+            display.lcd_display_string("Mode: Manual", 2)
         else:
-            lcd.lcd_display_string("Mode: StandBy", 2)
+            display.lcd_display_string("Mode: StandBy", 2)
         time.sleep(1)
-        lcd.lcd_clear()
-        lcd.lcd_display_string("Sun Coor", 1)
-        lcd.lcd_display_string("{}".format(global_sun_coor[:]), 2)
+        display.lcd_clear()
+        display.lcd_display_string("Sun Coor", 1)
+        display.lcd_display_string("{}".format(global_sun_coor[:]), 2)
         time.sleep(1)
-        lcd.lcd_clear()
+        display.lcd_clear()
 
 
 def get_angle_from_mpuSensor():
@@ -65,10 +65,15 @@ def monitor_display():
 
 
 def searching_for_sun(auto):
+    SERVO_SEACH_PATTERN = (375, 291, 208, 458, 541)
     solar_movement.stepper_enable()  # enable stepper motor
     solar_movement.set_servo_current_position(current_servo_pos.value)
+    solar_dream.get_image()
     while not solar_dream.is_there_sun() and auto.value:
+        solar_dream.servo.set_pwm(SERVO_SEACH_PATTERN[0])
+        #  Find the Fucking Sun
         pass
+
     current_servo_pos.value = solar_movement.get_servo_current_position()
 
 
@@ -80,14 +85,14 @@ def automated(sensitivity, auto):
         sun_coor = solar_dream.get_sun_coordinates
         solar_dream.mark_sun()
         #  X-axis Stepper
-        solar_movement.stepper_enable()  # enable stepper motor
+        solar_movement.stepper_enable()
         while sun_coor and (abs(window_center[0] - sun_coor[0]) > sensitivity) and (abs(current_stepper_angle.value) <= 60) and auto:
             print("Adjusting Stepper")
             if sun_coor[0] < window_center[0]:
                 solar_movement.stepper_move_left(67)
             elif sun_coor[0] > window_center[0]:
                 solar_movement.stepper_move_right(67)
-            solar_dream.get_image()  # get new image
+            solar_dream.get_image()
             if solar_dream.is_there_sun:
                 sun_coor = solar_dream.get_sun_coordinates
                 solar_dream.mark_sun()
@@ -95,7 +100,7 @@ def automated(sensitivity, auto):
                 sun_coor = None
             solar_dream.show_image()
             auto = GPIO.input(switch_auto)
-        solar_movement.stepper_disable()  # disable stepper motor
+        solar_movement.stepper_disable()
         # Y-axis Servo
         solar_movement.set_servo_current_position(current_servo_pos.value)
         while sun_coor and abs(window_center[1] - sun_coor[1]) > sensitivity and auto:
@@ -104,7 +109,7 @@ def automated(sensitivity, auto):
                 solar_movement.servo_right()
             elif sun_coor[1] > window_center[1]:
                 solar_movement.servo_left()
-            solar_dream.get_image()  # get new image
+            solar_dream.get_image()
             if solar_dream.is_there_sun:
                 sun_coor = solar_dream.get_sun_coordinates
                 global_sun_coor[:] = sun_coor
@@ -112,7 +117,7 @@ def automated(sensitivity, auto):
             else:
                 sun_coor = None
                 global_sun_coor[:] = [-1, -1]
-            solar_dream.show_image()  # show the image
+            solar_dream.show_image()
             auto = GPIO.input(switch_auto)
             current_servo_pos.value = solar_movement.get_servo_current_position()
         else:
@@ -175,10 +180,6 @@ def manualServoAdjust(manual):
     current_servo_pos.value = solar_movement.get_servo_current_position()
 
 
-def standByMode():
-    monitor_display()
-
-
 if __name__ == "__main__":
     input_servo_left = 31
     input_servo_right = 33
@@ -195,14 +196,13 @@ if __name__ == "__main__":
     GPIO.setup(switch_manual, GPIO.IN)
     window_center = solar_dream.get_window_center
     sensitivity = 10
-    auto = None  # switch for auto mode
-    # must be present to the thread for manual control, manual switch
+    auto = None
     manual = Value('i', GPIO.input(switch_manual))
     try:
         lcdThread = Process(target=lcd_display_temp_mode)
         mpuSensorThread = Process(target=get_angle_from_mpuSensor)
         lcdThread.start()
-        mpuSensorThread.start()  # accelerometer
+        mpuSensorThread.start()
         while True:
             auto = GPIO.input(switch_auto)
             manual.value = GPIO.input(switch_manual)
@@ -219,18 +219,16 @@ if __name__ == "__main__":
                                               args=(manual, ))
                 servoAdjustThread.start()
                 stepperAdjustThread.start()
-                servoAdjustThread.terminate()
-                stepperAdjustThread.terminate()
                 servoAdjustThread.join()
                 stepperAdjustThread.join()
             elif True:
                 solar_movement.stepper_disable()
                 print("StandBy Mode")
-                standByMode()
+                monitor_display()
         lcdThread.join()
         mpuSensorThread.join()
     except KeyboardInterrupt:
-        lcd.lcd_clear()
+        display.lcd_clear()
         solar_movement.clean_up()
         print('Main Thread Terminated')
         call("pkill python", shell=True)  # kill python program
