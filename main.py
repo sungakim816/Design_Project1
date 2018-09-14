@@ -21,6 +21,18 @@ current_stepper_angle = Value('d', 90.00)
 global_sun_coor = Array('i', 2)
 current_servo_pos = Value('i', solar_movement.get_servo_current_position())
 mpuSensor = mpu6050(0x68)
+WINDOW_CENTER = solar_dream.get_window_center
+SENSITIVITY = 10
+SERVO_SEARCH_PATTERN = (375, 291, 208, 458, 541)
+STEPPER_SEARCH_PATTERN = (0, 30, 60, -30, -60)
+is_there_sun = Value('i', 0)
+
+
+def read_mode():
+    while True:
+        auto.value = GPIO.input(switch_auto)
+        manual.value = GPIO.input(switch_manual)
+        time.sleep(0.5)
 
 
 def lcd_display_temp_mode():
@@ -35,7 +47,7 @@ def lcd_display_temp_mode():
             display.lcd_display_string("Mode: StandBy", 2)
         time.sleep(1)
         display.lcd_clear()
-        display.lcd_display_string("Sun Coor", 1)
+        display.lcd_display_string("Sun Coordinates", 1)
         display.lcd_display_string("{}".format(global_sun_coor[:]), 2)
         time.sleep(1)
         display.lcd_clear()
@@ -51,7 +63,7 @@ def get_angle_from_mpuSensor():
         angleAccX = math.atan2(accY, accZ + abs(accX)) * 360 / 2.0 / math.pi
         current_stepper_angle.value = angleAccX
         print(current_stepper_angle.value)
-        time.sleep(1)
+        time.sleep(0.1)
 
 
 def monitor_display():
@@ -64,61 +76,78 @@ def monitor_display():
     solar_dream.show_image()
 
 
+def servo_search_move(pat1):
+    current_servo_pos.value = SERVO_SEARCH_PATTERN[pat1]
+    solar_movement.set_servo_current_position(current_servo_pos.value)
+
+
+def stepper_search_move():
+    if current_stepper_angle.value >= 0 and current_stepper_angle.value <= 30:
+        stepper_search_mode = 1
+    elif current_stepper_angle.value >= 30 and current_stepper_angle.value <= 60:
+        while current_stepper_angle.value >= 0 and current_stepper_angle.value <= 60:
+            solar_movement.stepper_move_right(67)
+    elif current_stepper_angle.value >= 60:
+        pass
+
+
 def searching_for_sun(auto):
-    SERVO_SEACH_PATTERN = (375, 291, 208, 458, 541)
+    servo_pos_count = 0
     solar_movement.stepper_enable()  # enable stepper motor
     solar_movement.set_servo_current_position(current_servo_pos.value)
     solar_dream.get_image()
     while not solar_dream.is_there_sun() and auto.value:
-        solar_dream.servo.set_pwm(SERVO_SEACH_PATTERN[0])
-        #  Find the Fucking Sun
-        pass
-
+        while servo_pos_count <= 5 and not solar_dream.is_there_sun() and auto.value:
+            servo_search_move(servo_pos_count)
+            solar_dream.get_image()
+            solar_dream.is_there_sun()
+            solar_dream.show_image()
+            servo_pos_count = servo_pos_count + 1
+        servo_pos_count = 0
+        servo_search_move(servo_pos_count)
+        stepper_search_move()
     current_servo_pos.value = solar_movement.get_servo_current_position()
 
 
-def automated(sensitivity, auto):
+def automated(SENSITIVITY, auto):
     global current_servo_pos
     global current_stepper_angle
-    sun_coor = None
+    global global_sun_coor
+    global_sun_coor[:] = [-1, -1]
     if solar_dream.is_there_sun:
-        sun_coor = solar_dream.get_sun_coordinates
+        global_sun_coor[:] = solar_dream.get_sun_coordinates[:]
         solar_dream.mark_sun()
         #  X-axis Stepper
         solar_movement.stepper_enable()
-        while sun_coor and (abs(window_center[0] - sun_coor[0]) > sensitivity) and (abs(current_stepper_angle.value) <= 60) and auto:
+        while global_sun_coor[0] != -1 and (abs(WINDOW_CENTER[0] - global_sun_coor[0]) > SENSITIVITY) and (abs(current_stepper_angle.value) <= 60) and auto.value:
             print("Adjusting Stepper")
-            if sun_coor[0] < window_center[0]:
+            if global_sun_coor[0] < WINDOW_CENTER[0]:
                 solar_movement.stepper_move_left(67)
-            elif sun_coor[0] > window_center[0]:
+            elif global_sun_coor[0] > WINDOW_CENTER[0]:
                 solar_movement.stepper_move_right(67)
             solar_dream.get_image()
             if solar_dream.is_there_sun:
-                sun_coor = solar_dream.get_sun_coordinates
+                global_sun_coor[:] = solar_dream.get_sun_coordinates[:]
                 solar_dream.mark_sun()
             else:
-                sun_coor = None
+                global_sun_coor[:] = [-1, -1]
             solar_dream.show_image()
-            auto = GPIO.input(switch_auto)
         solar_movement.stepper_disable()
         # Y-axis Servo
         solar_movement.set_servo_current_position(current_servo_pos.value)
-        while sun_coor and abs(window_center[1] - sun_coor[1]) > sensitivity and auto:
+        while global_sun_coor[1] != -1 and abs(WINDOW_CENTER[1] - global_sun_coor[1]) > SENSITIVITY and auto.value:
             print("Adjusting Servo")
-            if sun_coor[1] < window_center[1]:
+            if global_sun_coor[1] < WINDOW_CENTER[1]:
                 solar_movement.servo_right()
-            elif sun_coor[1] > window_center[1]:
+            elif global_sun_coor[1] > WINDOW_CENTER[1]:
                 solar_movement.servo_left()
             solar_dream.get_image()
             if solar_dream.is_there_sun:
-                sun_coor = solar_dream.get_sun_coordinates
-                global_sun_coor[:] = sun_coor
+                global_sun_coor[:] = solar_dream.get_sun_coordinates[:]
                 solar_dream.mark_sun()
             else:
-                sun_coor = None
                 global_sun_coor[:] = [-1, -1]
             solar_dream.show_image()
-            auto = GPIO.input(switch_auto)
             current_servo_pos.value = solar_movement.get_servo_current_position()
         else:
             searching_for_sun(auto)
@@ -194,22 +223,20 @@ if __name__ == "__main__":
     GPIO.setup(input_stepper_right, GPIO.IN)
     GPIO.setup(switch_auto, GPIO.IN)
     GPIO.setup(switch_manual, GPIO.IN)
-    window_center = solar_dream.get_window_center
-    sensitivity = 10
-    auto = None
+    auto = Value('i', GPIO.input(switch_auto))
     manual = Value('i', GPIO.input(switch_manual))
     try:
+        switchModeThread = Process(target=read_mode)
         lcdThread = Process(target=lcd_display_temp_mode)
         mpuSensorThread = Process(target=get_angle_from_mpuSensor)
         lcdThread.start()
         mpuSensorThread.start()
+        switchModeThread.start()
         while True:
-            auto = GPIO.input(switch_auto)
-            manual.value = GPIO.input(switch_manual)
-            if auto:
+            if auto.value:
                 print("Auto Mode")
                 solar_dream.get_image()
-                automated(sensitivity, auto)
+                automated(SENSITIVITY, auto)
                 solar_dream.show_image()
             elif manual.value:
                 print("Manual Mode")
@@ -221,12 +248,13 @@ if __name__ == "__main__":
                 stepperAdjustThread.start()
                 servoAdjustThread.join()
                 stepperAdjustThread.join()
-            elif True:
+            elif True:  # DO NOT FUCKING FORGET THIS LINE OF CODE
                 solar_movement.stepper_disable()
                 print("StandBy Mode")
                 monitor_display()
         lcdThread.join()
         mpuSensorThread.join()
+        switchModeThread.join()
     except KeyboardInterrupt:
         display.lcd_clear()
         solar_movement.clean_up()

@@ -166,9 +166,9 @@ class SolarMovement(object):
                                 else self.__servo_current)
         self.__servo_move()
 
-    def __servo_move(self):
+    def __servo_move(self, delay=0.010):
         self.servo.set_pwm(0, 0, self.__servo_current)
-        time.sleep(0.010)
+        time.sleep(delay)
 
     def set_servo_increment(self, servo_increment):
         self.__servo_increment = int(servo_increment)
@@ -180,5 +180,13 @@ class SolarMovement(object):
         return self.__servo_current
 
     def set_servo_current_position(self, servo_pos):
-        self.__servo_current = servo_pos
-        self.__servo_move()
+        if servo_pos > self.__servo_current:
+            limit = servo_pos
+            for i in range(self.__servo_current, limit+1):
+                self.__servo_current = i
+                self.__servo_move()
+        elif servo_pos < self.__servo_current:
+            limit = self.__servo_current
+            for i in range(servo_pos, limit+1):
+                self.__servo_current = i
+                self.__servo_move()
