@@ -23,6 +23,7 @@ current_servo_pos = Value('i', solar_movement.get_servo_current_position())
 mpuSensor = mpu6050(0x68)
 WINDOW_CENTER = solar_dream.get_window_center
 SENSITIVITY = 10
+MPU_SENSITIVITY = 2.5
 SERVO_SEARCH_PATTERN = (375, 291, 208, 458, 541)
 STEPPER_SEARCH_PATTERN = (0, 30, 60, -30, -60)
 is_there_sun = Value('i', 0)
@@ -81,18 +82,18 @@ def servo_search_move(pat1):
     solar_movement.set_servo_current_position(current_servo_pos.value)
 
 
-def stepper_search_move():
-    if current_stepper_angle.value >= 0 and current_stepper_angle.value <= 30:
-        stepper_search_mode = 1
-    elif current_stepper_angle.value >= 30 and current_stepper_angle.value <= 60:
-        while current_stepper_angle.value >= 0 and current_stepper_angle.value <= 60:
-            solar_movement.stepper_move_right(67)
-    elif current_stepper_angle.value >= 60:
-        pass
+def stepper_search_move(target):
+    if current_stepper_angle.value > target:
+        while abs(abs(current_stepper_angle.value) - abs(target)) > MPU_SENSITIVITY and auto.value:
+            solar_movement.stepper_move_left()
+    elif current_stepper_angle.value < target:
+        while abs(abs(current_stepper_angle.value) - abs(target)) > MPU_SENSITIVITY and auto.value:
+            solar_movement.stepper_move_right()
 
 
 def searching_for_sun(auto):
     servo_pos_count = 0
+    stepper_search_count = 0
     solar_movement.stepper_enable()  # enable stepper motor
     solar_movement.set_servo_current_position(current_servo_pos.value)
     solar_dream.get_image()
@@ -104,9 +105,8 @@ def searching_for_sun(auto):
             solar_dream.show_image()
             servo_pos_count = servo_pos_count + 1
         servo_pos_count = 0
-        servo_search_move(servo_pos_count)
-        stepper_search_move()
-    current_servo_pos.value = solar_movement.get_servo_current_position()
+        stepper_search_move(stepper_search_count)
+        stepper_search_count = stepper_search_count + 1
 
 
 def automated(SENSITIVITY, auto):
