@@ -152,23 +152,23 @@ class SolarMovement(object):
     def stepper_disable(self):
         self.GPIO.output(self.__enblpin, False)
 
-    def servo_right(self):
+    def __servo_move(self, delay=0.010):
+        self.servo.set_pwm(0, 0, self.__servo_current)
+        time.sleep(delay)
+
+    def servo_right(self, delay=0.010):
         self.__servo_current = self.__servo_current - self.__servo_increment
         self.__servo_current = (self.servo_min
                                 if self.__servo_current <= self.servo_min
                                 else self.__servo_current)
-        self.__servo_move()
+        self.__servo_move(delay)
 
-    def servo_left(self):
+    def servo_left(self, delay=0.010):
         self.__servo_current = self.__servo_current + self.__servo_increment
         self.__servo_current = (self.servo_max
                                 if self.__servo_current >= self.servo_max
                                 else self.__servo_current)
-        self.__servo_move()
-
-    def __servo_move(self, delay=0.010):
-        self.servo.set_pwm(0, 0, self.__servo_current)
-        time.sleep(delay)
+        self.__servo_move(delay)
 
     def set_servo_increment(self, servo_increment):
         self.__servo_increment = int(servo_increment)
@@ -186,7 +186,7 @@ class SolarMovement(object):
                 self.__servo_current = i
                 self.__servo_move()
         elif servo_pos < self.__servo_current:
-            limit = self.__servo_current
-            for i in range(servo_pos, limit+1):
+            start = self.__servo_current
+            for i in range(start, servo_pos-1, -1):
                 self.__servo_current = i
                 self.__servo_move()
