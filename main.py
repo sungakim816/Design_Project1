@@ -84,10 +84,10 @@ def servo_search_move(pat1):
 
 def stepper_search_move(target):
     if current_stepper_angle.value > target:
-        while abs(abs(current_stepper_angle.value) - abs(target)) > MPU_SENSITIVITY and auto.value:
+        while abs(abs(current_stepper_angle.value) - abs(STEPPER_SEARCH_PATTERN[target])) > MPU_SENSITIVITY and auto.value:
             solar_movement.stepper_move_left()
     elif current_stepper_angle.value < target:
-        while abs(abs(current_stepper_angle.value) - abs(target)) > MPU_SENSITIVITY and auto.value:
+        while abs(abs(current_stepper_angle.value) - abs(STEPPER_SEARCH_PATTERN[target])) > MPU_SENSITIVITY and auto.value:
             solar_movement.stepper_move_right()
 
 
