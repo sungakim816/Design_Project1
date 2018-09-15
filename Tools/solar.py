@@ -72,9 +72,9 @@ class SolarCamera:
             self.window_size)  # same as window size
         #  (position/coordinates, diameter, Color, Thickness of the lines)
         self.__scope_layer.circle(
-            self.__window_center, 50, Color.BLACK, width=3)
+            self.__window_center, 50, Color.BLUE, width=3)
         self.__scope_layer.circle(
-            self.__window_center, 100, Color.BLACK, width=2)
+            self.__window_center, 100, Color.BLUE, width=2)
         self.__scope_layer.line(
             (self.__window_center[0], self.__window_center[1]-50), (self.__window_center[0], 0), Color.BLACK, width=2)
         self.__scope_layer.line((self.__window_center[0], self.__window_center[1]+50), (
