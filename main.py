@@ -246,8 +246,6 @@ if __name__ == "__main__":
                                               args=(manual, ))
                 servoAdjustThread.start()
                 stepperAdjustThread.start()
-                servoAdjustThread.terminate()
-                stepperAdjustThread.terminate()
                 servoAdjustThread.join()
                 stepperAdjustThread.join()
             else:  # DO NOT FUCKING FORGET THIS LINE OF CODE
