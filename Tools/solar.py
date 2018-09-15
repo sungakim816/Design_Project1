@@ -13,13 +13,13 @@ class SolarCamera:
     def __init__(self, window_size=(640, 480), **kwargs):
         while True:  # Initialize the Camera
             try:
-                self.cam = Camera()
-                self.cam.getImage().flipHorizontal()
+                cam = Camera()
+                cam.getImage().flipHorizontal()
             except:
                 continue
             else:
                 break
-
+        self.cam = cam
         self.image = None
         self.window_size = window_size
         self.display = Display(self.window_size)
@@ -175,6 +175,7 @@ class SolarMovement(object):
 
     def clean_up(self):
         self.GPIO.cleanup()
+        GPIO.cleanup()
 
     def get_servo_current_position(self):
         return self.__servo_current

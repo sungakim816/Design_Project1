@@ -26,7 +26,7 @@ SENSITIVITY = 10
 MPU_SENSITIVITY = 2.5
 SERVO_SEARCH_PATTERN = (375, 291, 208, 458, 541)
 STEPPER_SEARCH_PATTERN = (0, 30, 60, -30, -60)
-is_there_sun = Value('i', 0)
+# is_there_sun = Value('i', 0)
 
 
 def read_mode():
@@ -52,6 +52,7 @@ def lcd_display_temp_mode():
         display.lcd_display_string("{}".format(global_sun_coor[:]), 2)
         time.sleep(1)
         display.lcd_clear()
+    display.lcd_clear()
 
 
 def get_angle_from_mpuSensor():
@@ -63,7 +64,6 @@ def get_angle_from_mpuSensor():
         accZ = (accel_data['z']) / 16384.0
         angleAccX = math.atan2(accY, accZ + abs(accX)) * 360 / 2.0 / math.pi
         current_stepper_angle.value = angleAccX
-        print(current_stepper_angle.value)
         time.sleep(0.1)
 
 
@@ -106,7 +106,8 @@ def searching_for_sun(auto):
             servo_pos_count = servo_pos_count + 1
         servo_pos_count = 0
         stepper_search_move(stepper_search_count)
-        stepper_search_count = stepper_search_count + 1
+        stepper_search_count = stepper_search_count + \
+            1 if stepper_search_count < 5 else 0
 
 
 def automated(SENSITIVITY, auto):
@@ -225,6 +226,7 @@ if __name__ == "__main__":
     GPIO.setup(switch_manual, GPIO.IN)
     auto = Value('i', GPIO.input(switch_auto))
     manual = Value('i', GPIO.input(switch_manual))
+    print("Program Running...")
     try:
         switchModeThread = Process(target=read_mode)
         lcdThread = Process(target=lcd_display_temp_mode)
@@ -234,29 +236,28 @@ if __name__ == "__main__":
         switchModeThread.start()
         while True:
             if auto.value:
-                print("Auto Mode")
                 solar_dream.get_image()
                 automated(SENSITIVITY, auto)
                 solar_dream.show_image()
             elif manual.value:
-                print("Manual Mode")
                 servoAdjustThread = Process(target=manualServoAdjust,
                                             args=(manual, ))
                 stepperAdjustThread = Process(target=manualStepperAdjust,
                                               args=(manual, ))
                 servoAdjustThread.start()
                 stepperAdjustThread.start()
+                servoAdjustThread.terminate()
+                stepperAdjustThread.terminate()
                 servoAdjustThread.join()
                 stepperAdjustThread.join()
-            elif True:  # DO NOT FUCKING FORGET THIS LINE OF CODE
+            else:  # DO NOT FUCKING FORGET THIS LINE OF CODE
                 solar_movement.stepper_disable()
-                print("StandBy Mode")
                 monitor_display()
         lcdThread.join()
         mpuSensorThread.join()
         switchModeThread.join()
     except KeyboardInterrupt:
         display.lcd_clear()
-        solar_movement.clean_up()
+        GPIO.cleanup()
         print('Main Thread Terminated')
         call("pkill python", shell=True)  # kill python program
