@@ -38,6 +38,9 @@ def move_left():
 
 def main():
     while True:
+        move_right()
+        move_step(800)
+        time.sleep(1)
         move_left()
         move_step(800)
         time.sleep(1)

@@ -23,7 +23,7 @@ class SolarCamera:
         self.image = None
         self.window_size = window_size
         self.display = Display(self.window_size)
-        self.__window_center = (self.window_size[0]/2, self.window_size[1]/2)
+        self.__window_center = (338, 377)# (self.window_size[0]/2, self.window_size[1]/2)
         self.__distance = None
         self.__blobs = None
         self.__segmented = None
