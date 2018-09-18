@@ -42,7 +42,6 @@ STEPPER_SEARCH_PATTERN = (0, 30, 50, -30, -50)
 master = Value('i', GPIO.input(36))
 auto = Value('i', GPIO.input(40))
 manual = Value('i', GPIO.input(38))
-master.value = 1
 
 
 def read_mode():
@@ -50,7 +49,7 @@ def read_mode():
     global manual
     global master
     while datetime.now() <= TIME_LIMIT:
-        master.value = 1  # DO NOT FORGET ABOUT THIS LINE OF CODE
+        master.value = GPIO.input(36)
         auto.value = GPIO.input(40)
         manual.value = GPIO.input(38)
 
@@ -100,7 +99,7 @@ def get_angle_from_mpuSensor():
             if type(angleAccX) is float:
                 current_stepper_angle.value = angleAccX
             del mpuSensor
-            time.sleep(0.2)
+            # time.sleep(0.2)
         except IOError:
             continue
 
@@ -147,10 +146,14 @@ def searching_for_sun(auto):
             if solar_dream.is_there_sun:
                 global_sun_coor[:] = solar_dream.get_sun_coordinates
                 solar_dream.mark_sun()
+                solar_dream.show_image()
+                break
             else:
                 global_sun_coor[:] = [0, 0]
-            solar_dream.show_image()
+                solar_dream.show_image()
         servo_pos_count = 0
+        if global_sun_coor[0] != 0:
+            break
         stepper_search_move(stepper_pos_count)
         stepper_pos_count = stepper_pos_count + 1
 
@@ -197,7 +200,7 @@ def automated(SENSITIVITY, auto):
             solar_dream.show_image()
             current_servo_pos.value = solar_movement.get_servo_current_position()
         print('Centered...')
-        # time.sleep(600)
+        time.sleep(600)
     else:
         searching_for_sun(auto)
 
@@ -209,7 +212,6 @@ def read_debounce(pinNum, previousButtonState):
 
 
 def manualStepperAdjust(manual):
-    print('Manual Stepper')
     solar_movement.stepper_enable()
     currentStepperLeft = False
     currentStepperRight = False
@@ -232,7 +234,6 @@ def manualStepperAdjust(manual):
 
 
 def manualServoAdjust(manual):
-    print('Manual Servo')
     global current_servo_pos
     previousServoLeft = False
     previousServoRight = False
