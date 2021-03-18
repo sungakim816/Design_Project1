@@ -7,7 +7,7 @@ ExplorerHAT==0.4.2
 Flask==0.12.3
 Jinja2==2.7.3
 MarkupSafe==0.23
-Pillow==2.6.1
+Pillow==8.1.1
 RPi.GPIO==0.6.3
 RTIMULib==7.2.1
 SimpleCV==1.3
